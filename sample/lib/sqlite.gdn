@@ -1,0 +1,23 @@
+[gd_resource type="GDNativeScript" load_steps=2 format=2]
+
+[sub_resource type="GDNativeLibrary" id=1]
+
+platform/unix = ""
+platform/x11 = "res://lib/libsqlite.so"
+platform/server = ""
+platform/android = ""
+platform/blackberry = ""
+platform/haiku = ""
+platform/mac = ""
+platform/ios = ""
+platform/osx = ""
+platform/html5 = ""
+platform/windows = ""
+platform/uwp = ""
+
+[resource]
+
+resource_name = "Player"
+library = SubResource( 1 )
+script_name = "SQLite"
+
