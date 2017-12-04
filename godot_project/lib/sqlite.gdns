@@ -1,6 +1,6 @@
 [gd_resource type="NativeScript" load_steps=2 format=2]
 
-[ext_resource path="res://lib/gdsqlite.gdnlib" type="GDNativeLibrary" id=1]
+[ext_resource path="res://lib/gdsqlite/gdsqlite.gdnlib" type="GDNativeLibrary" id=1]
 
 [resource]
 

@@ -6,7 +6,7 @@ symbol_prefix="godot_"
 
 [entry]
 
-X11.64=""
+X11.64="res://lib/gdsqlite/libgdsqlite.64.so"
 Windows.32="res://lib/gdsqlite/gdsqlite.32.dll"
 Windows.64="res://lib/gdsqlite/gdsqlite.64.dll"
 OSX=""

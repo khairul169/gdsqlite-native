@@ -5,9 +5,11 @@
 #*.dll
 *.exe
 *.o
+*.os
 *.obj
 *.exp
 #*.so
+*.pdb
 
 # Packages #
 ############
