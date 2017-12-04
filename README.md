@@ -6,28 +6,7 @@ A [SQLite](https://www.sqlite.org/) wrapper for Godot Engine 3.0
 
 Download latest [release](https://github.com/khairul169/gdsqlite-native/releases) of this module and uncompress it on your project directory.
 
-## How to compile
-
-You will need [godot headers](https://github.com/GodotNativeTools/godot_headers) and compiled library of [c++ bindings](https://github.com/GodotNativeTools/cpp_bindings) before compiling this module.
-
-**SConstruct:** set cpp_bindings and godot_headers to your own path.
-
-**Depedencies:** scons, build package
-
-Compiling on linux:
-```
-scons p=linux
-```
-
-Compiling on windows:
-```
-# windows x64
-scons p=windows bits=64
-# windows x86
-scons p=windows bits=32
-```
-
-## Usage
+## Example usage
 ```
 extends Node
 
