@@ -31,41 +31,44 @@ scons p=windows bits=32
 ```
 extends Node
 
-# Preload SQLite native script
-var SQLite = preload("res://lib/sqlite.gdn");
-
-# Instance our class
-var db = SQLite.new();
+# SQLite library
+var sqlite = preload("res://lib/sqlite.gdns").new();
 
 func _ready():
-	# Enable debugging
-	db.set_debugging(true);
+	var query = "";
+	var result = null;
 	
-	# Open SQL
-	if db.open("data.sql") != OK:
-		print("ERR: ", db.get_errormsg());
-		return;
+	# Open database file
+	if (sqlite.open_database("test.sql") != OK):
+		print("Cannot open database!");
 	
-	var columns = [];
-	columns.append("id INTEGER PRIMARY KEY AUTOINCREMENT");
-	columns.append("name TEXT");
-	columns.append("age INTEGER");
+	# Create table
+	query = "CREATE TABLE IF NOT EXISTS test (";
+	query += "id integer PRIMARY KEY,";
+	query += "first_name text NOT NULL,";
+	query += "last_name text NOT NULL,";
+	query += "email text NOT NULL";
+	query += ");";
+	result = sqlite.query(query);
 	
-	# args: String tablename | Array columns | Bool create only if not exists
-	# return: Integer retval
-	db.create_table("users", columns, true);
+	if (!result):
+		print("Error: cannot create table.");
 	
-	# args: String query
-	# return: Integer retval
-	db.query("INSERT INTO users (name, age) VALUES ('khairul', '17');");
-  
-	# args: String query
-	# return: Array rows
-	var data = db.fetch_array("SELECT * FROM users LIMIT 10;");
-	print("Rows count: ", data.size());
-  
-	for i in data:
-		print(i);
-  
-	db.close();
+	# Fetch rows
+	query = "SELECT * FROM test;";
+	result = sqlite.fetch_array(query);
+	
+	if (result.size() <= 0):
+		# Insert new row
+		query = "INSERT INTO test (first_name, last_name, email) VALUES ('godot', 'engine', 'user@test.org');";
+		result = sqlite.query(query);
+		
+		if (!result):
+			print("Error: cannot insert data");
+		else:
+			print("Data inserted.");
+	else:
+		# Print fetched rows
+		for i in result:
+			print(i);
 ```
