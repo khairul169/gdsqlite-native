@@ -42,4 +42,5 @@ Thumbs.db
 .import/
 .sconsign.dblite
 godot_project/.import/
+godot_project/lib/gdsqlite/*.lib
 vsproj/

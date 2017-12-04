@@ -4,6 +4,10 @@ extends Node
 var sqlite = preload("res://lib/sqlite.gdns").new();
 
 func _ready():
+	# Cannot initialize sqlite library
+	if (!sqlite):
+		return;
+	
 	var query = "";
 	var result = null;
 	
