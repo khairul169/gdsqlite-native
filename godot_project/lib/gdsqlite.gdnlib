@@ -1,0 +1,17 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="godot_"
+
+[entry]
+
+X11.64=""
+Windows.64="res://lib/gdsqlite/gdsqlite.dll"
+OSX=""
+
+[dependencies]
+
+X11.64=[]
+Windows=[]
+OSX.64=[]

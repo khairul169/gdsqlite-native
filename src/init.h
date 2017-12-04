@@ -1,8 +1,9 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include <Godot.hpp>
+#include "gdnative/gdnative.h"
+#include "nativescript/godot_nativescript.h"
 
-using namespace godot;
+#include "gdsqlite.h"
 
 #endif

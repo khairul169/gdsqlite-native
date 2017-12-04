@@ -5,6 +5,8 @@
 #*.dll
 *.exe
 *.o
+*.obj
+*.exp
 #*.so
 
 # Packages #
@@ -36,5 +38,8 @@
 ehthumbs.db
 Thumbs.db
 
-# SCons files
+# Etc
+.import/
 .sconsign.dblite
+godot_project/.import/
+vsproj/
