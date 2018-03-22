@@ -37,3 +37,6 @@ func _ready():
 		# Print fetched rows
 		for i in result:
 			print(i);
+	
+	# Close database
+	SQLite.close();
