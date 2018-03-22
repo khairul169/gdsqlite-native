@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://examples/game_highscore.gd" type="Script" id=1]
+[ext_resource path="res://examples/sql_queries.gd" type="Script" id=1]
 
 [node name="scene" type="Node" index="0"]
 

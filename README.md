@@ -8,4 +8,5 @@ Download latest [release](https://github.com/khairul169/gdsqlite-native/releases
 
 ## Example usage
 
+- [SQL Queries](https://github.com/khairul169/gdsqlite-native/blob/master/godot_project/examples/sql_queries.gd)
 - [Game Highscore](https://github.com/khairul169/gdsqlite-native/blob/master/godot_project/examples/game_highscore.gd)

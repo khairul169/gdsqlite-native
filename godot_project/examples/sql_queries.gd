@@ -1,15 +1,16 @@
 extends Node
 
 func _ready():
+	# Open database
+	if (!SQLite.open_db("godot.sql")):
+		print("Cannot open database.");
+		return;
+	
 	var query = "";
 	var result = null;
 	
-	# Open database file
-	if (SQLite.open_db("test.sql") != OK):
-		print("Cannot open database!");
-	
 	# Create table
-	query = "CREATE TABLE IF NOT EXISTS test (";
+	query = "CREATE TABLE IF NOT EXISTS users (";
 	query += "id integer PRIMARY KEY,";
 	query += "first_name text NOT NULL,";
 	query += "last_name text NOT NULL,";
@@ -17,24 +18,22 @@ func _ready():
 	query += ");";
 	result = SQLite.query(query);
 	
-	if (!result):
-		print("Error: cannot create table.");
-	
 	# Fetch rows
-	query = "SELECT * FROM test;";
+	query = "SELECT * FROM users;";
 	result = SQLite.fetch_array(query);
 	
-	if (result.size() <= 0):
+	if (!result || result.size() <= 0):
 		# Insert new row
-		query = "INSERT INTO test (first_name, last_name, email) VALUES ('godot', 'engine', 'user@test.org');";
+		query = "INSERT INTO users (first_name, last_name, email) VALUES ('godot', 'engine', 'user@users.org');";
 		result = SQLite.query(query);
 		
 		if (!result):
-			print("Error: cannot insert data");
+			print("Cannot insert data!");
 		else:
-			print("Data inserted.");
+			print("Data inserted into table.");
+	
 	else:
-		# Print fetched rows
+		# Print rows
 		for i in result:
 			print(i);
 	
