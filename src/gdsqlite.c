@@ -24,8 +24,7 @@ void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o)
 
 	// Find nativescript api
 	for (int i = 0; i < api->num_extensions; i++) {
-		if (api->extensions[i]->type == GDNATIVE_EXT_NATIVESCRIPT)
-		{
+		if (api->extensions[i]->type == GDNATIVE_EXT_NATIVESCRIPT) {
 			nativescript_api = (godot_gdnative_ext_nativescript_api_struct *)api->extensions[i];
 		}
 	}
@@ -253,8 +252,6 @@ void register_method(void* handle, const char* method_name, void* method_ptr)
 	attrib.rpc_type = GODOT_METHOD_RPC_MODE_DISABLED;
 
 	nativescript_api->godot_nativescript_register_method(handle, SQLITE_CLASSNAME, method_name, attrib, method_instance);
-
-	printf("> register_method(\"%s\");\n", method_name);
 }
 
 /** Script entry (Registering all the classes and stuff) **/
@@ -274,6 +271,4 @@ void GDN_EXPORT godot_nativescript_init(void *p_handle)
 	register_method(p_handle, "open_database", &sqlite_open);
 	register_method(p_handle, "query", &sqlite_query);
 	register_method(p_handle, "fetch_array", &sqlite_fetch_array);
-
-	printf("> nativescript_init();\n");
 }
