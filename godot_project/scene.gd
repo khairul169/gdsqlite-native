@@ -1,15 +1,19 @@
+tool
 extends Node
 
-# SQLite library
-var sqlite = preload("res://lib/sqlite.gdns");
+# Variables
+var sqlite;
 
-func _ready():
-	# Cannot load sqlite library
-	if (!sqlite):
-		return;
+func _init():
+	print("==========================\n_init()");
 	
 	# Initialize sqlite
+	sqlite = preload("res://lib/sqlite.gdns");
 	sqlite = sqlite.new();
+	
+	# Cannot load sqlite module
+	if (!sqlite):
+		return;
 	
 	var query = "";
 	var result = null;
