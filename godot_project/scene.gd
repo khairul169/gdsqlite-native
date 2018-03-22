@@ -1,25 +1,11 @@
-tool
 extends Node
 
-# Variables
-var sqlite;
-
-func _init():
-	print("==========================\n_init()");
-	
-	# Initialize sqlite
-	sqlite = preload("res://lib/sqlite.gdns");
-	sqlite = sqlite.new();
-	
-	# Cannot load sqlite module
-	if (!sqlite):
-		return;
-	
+func _ready():
 	var query = "";
 	var result = null;
 	
 	# Open database file
-	if (sqlite.open_database("test.sql") != OK):
+	if (SQLite.open_db("test.sql") != OK):
 		print("Cannot open database!");
 	
 	# Create table
@@ -29,19 +15,19 @@ func _init():
 	query += "last_name text NOT NULL,";
 	query += "email text NOT NULL";
 	query += ");";
-	result = sqlite.query(query);
+	result = SQLite.query(query);
 	
 	if (!result):
 		print("Error: cannot create table.");
 	
 	# Fetch rows
 	query = "SELECT * FROM test;";
-	result = sqlite.fetch_array(query);
+	result = SQLite.fetch_array(query);
 	
 	if (result.size() <= 0):
 		# Insert new row
 		query = "INSERT INTO test (first_name, last_name, email) VALUES ('godot', 'engine', 'user@test.org');";
-		result = sqlite.query(query);
+		result = SQLite.query(query);
 		
 		if (!result):
 			print("Error: cannot insert data");
