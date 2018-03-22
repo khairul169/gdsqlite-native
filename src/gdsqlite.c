@@ -40,42 +40,35 @@ void GDN_EXPORT godot_gdnative_terminate(godot_gdnative_terminate_options *o)
 
 // Constructor
 void *gdsqlite_init(godot_object *p_instance, void *p_method_data) {
-	printf("GDSQLite loaded.\n");
+	printf("[SQLite] Module loaded.\n");
 	return 0;
 }
 
 // Destructor
 void gdsqlite_free(godot_object *p_instance, void *p_method_data, void *p_user_data) {
-	if (db != NULL)
-	{
+	if (db != NULL) {
 		sqlite3_close(db);
 		db = NULL;
 		stmt = NULL;
 	}
-	
-	printf("GDSQLite unloaded.\n");
 }
 
-char *godot_string_to_char(godot_string *str)
-{
-	int len;
+char *alloc_c_string(godot_string *string) {
+	godot_char_string contents = api->godot_string_utf8(string);
 
-	// figure out the lenght of our string
-	api->godot_string_get_data(str, NULL, &len);
+	int length = api->godot_char_string_length(&contents);
+	char *result = (char *) api->godot_alloc(length + 1);
 
-	// allocate our buffer
-	char *result = (char *)api->godot_alloc(len + 1);
-	if (result != NULL) {
-		api->godot_string_get_data(str, result, &len);
-		result[len] = '\0';
+	if (result) {
+		memcpy(result, api->godot_char_string_get_data(&contents), length + 1);
 	}
 
+	api->godot_char_string_destroy(&contents);
 	return result;
 }
 
 // Get user data directory
-char *get_data_dir()
-{
+const char *get_data_dir() {
 	// Load OS singleton
 	if (godot_os == NULL)
 		godot_os = api->godot_global_get_singleton((char *) "OS");
@@ -92,7 +85,7 @@ char *get_data_dir()
 
 	// return user dir
 	char *ret;
-	ret = godot_string_to_char(&usr_dir);
+	ret = alloc_c_string(&usr_dir);
 	return ret;
 }
 
@@ -113,13 +106,13 @@ godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data,
 
 	// Database file path
 	char *filename, filepath[256];
-	filename = godot_string_to_char(&fname);
+	filename = alloc_c_string(&fname);
 
 	strcpy(filepath, get_data_dir());
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 	
-	printf("[SQLite] Database path: res://%s\n", filename);
+	printf("[SQLite] Database path: user://%s\n", filename);
 
 	// Open database
 	int err = sqlite3_open(filepath, &db);
@@ -149,7 +142,7 @@ godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data
 
 	// Parse arguments
 	godot_string arg_query = api->godot_variant_as_string(args[0]);
-	int retv = sqlite_prepare(godot_string_to_char(&arg_query));
+	int retv = sqlite_prepare(alloc_c_string(&arg_query));
 
 	// Failed to prepare the query
 	if (retv != SQLITE_OK)
@@ -177,7 +170,7 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 	
 	// Parse arguments
 	godot_string arg_query = api->godot_variant_as_string(args[0]);
-	int retv = sqlite_prepare(godot_string_to_char(&arg_query));
+	int retv = sqlite_prepare(alloc_c_string(&arg_query));
 
 	// Failed to prepare the query
 	if (retv != SQLITE_OK)
@@ -203,7 +196,8 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 				// Dictionary key
 				const char *colname = sqlite3_column_name(stmt, i);
 				godot_string key_string;
-				api->godot_string_new_data(&key_string, colname, strlen(colname));
+				api->godot_string_new(&key_string);
+				api->godot_string_parse_utf8(&key_string, colname);
 				api->godot_variant_new_string(&key, &key_string);
 
 				// Value datatype
@@ -227,7 +221,8 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 				{
 					const char* val = sqlite3_column_text(stmt, i);
 					godot_string s;
-					api->godot_string_new_data(&s, val, strlen(val));
+					api->godot_string_new(&s);
+					api->godot_string_parse_utf8(&s, val);
 					api->godot_variant_new_string(&value, &s);
 					api->godot_dictionary_set(&row, &key, &value);
 				}
@@ -239,6 +234,8 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 		}
 		else break;
 	}
+
+	// Destroy data
 	sqlite3_finalize(stmt);
 
 	// Return data
@@ -256,6 +253,8 @@ void register_method(void* handle, const char* method_name, void* method_ptr)
 	attrib.rpc_type = GODOT_METHOD_RPC_MODE_DISABLED;
 
 	nativescript_api->godot_nativescript_register_method(handle, SQLITE_CLASSNAME, method_name, attrib, method_instance);
+
+	printf("> register_method(\"%s\");\n", method_name);
 }
 
 /** Script entry (Registering all the classes and stuff) **/
@@ -275,4 +274,6 @@ void GDN_EXPORT godot_nativescript_init(void *p_handle)
 	register_method(p_handle, "open_database", &sqlite_open);
 	register_method(p_handle, "query", &sqlite_query);
 	register_method(p_handle, "fetch_array", &sqlite_fetch_array);
+
+	printf("> nativescript_init();\n");
 }
