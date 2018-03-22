@@ -24,9 +24,8 @@ void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o)
 
 	// Find nativescript api
 	for (int i = 0; i < api->num_extensions; i++) {
-		if (api->extensions[i]->type == GDNATIVE_EXT_NATIVESCRIPT) {
+		if (api->extensions[i]->type == GDNATIVE_EXT_NATIVESCRIPT)
 			nativescript_api = (godot_gdnative_ext_nativescript_api_struct *)api->extensions[i];
-		}
 	}
 }
 
@@ -89,8 +88,7 @@ const char *get_data_dir() {
 }
 
 // Open & load database
-godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args)
-{
+godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args) {
 	godot_variant ret;
 
 	// Database is not null or no argument supplied.
@@ -120,16 +118,14 @@ godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data,
 	return ret;
 }
 
-int sqlite_prepare(const char* query)
-{
+int sqlite_prepare(const char* query) {
 	int ret = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (ret != SQLITE_OK)
 		printf("[SQLite] Error: %s\n", sqlite3_errmsg(db));
 	return ret;
 }
 
-godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args)
-{
+godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args) {
 	godot_variant ret;
 
 	// No args
@@ -158,8 +154,7 @@ godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data
 	return ret;
 }
 
-godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args)
-{
+godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args) {
 	godot_variant ret;
 	api->godot_variant_new_nil(&ret);
 
@@ -202,22 +197,19 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 				// Value datatype
 				int type = sqlite3_column_type(stmt, i);
 
-				if (type == SQLITE_INTEGER)
-				{
+				if (type == SQLITE_INTEGER) {
 					int val = sqlite3_column_int(stmt, i);
 					api->godot_variant_new_int(&value, val);
 					api->godot_dictionary_set(&row, &key, &value);
 				}
 
-				if (type == SQLITE_FLOAT)
-				{
+				if (type == SQLITE_FLOAT) {
 					double val = sqlite3_column_double(stmt, i);
 					api->godot_variant_new_real(&value, val);
 					api->godot_dictionary_set(&row, &key, &value);
 				}
 
-				if (type == SQLITE_TEXT)
-				{
+				if (type == SQLITE_TEXT) {
 					const char* val = sqlite3_column_text(stmt, i);
 					godot_string s;
 					api->godot_string_new(&s);
@@ -231,6 +223,7 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 			api->godot_variant_new_dictionary(&v, &row);
 			api->godot_array_append(&rows, &v);
 		}
+
 		else break;
 	}
 
@@ -240,6 +233,21 @@ godot_variant sqlite_fetch_array(godot_object *obj, void *method_data, void *use
 	// Return data
 	api->godot_variant_destroy(&ret);
 	api->godot_variant_new_array(&ret, &rows);
+	return ret;
+}
+
+// Open & load database
+godot_variant sqlite_close(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args) {
+	godot_variant ret;
+
+	// No database loaded
+	if (!db || sqlite3_close_v2(db) != SQLITE_OK) {
+		api->godot_variant_new_int(&ret, -1);
+		return ret;
+	}
+
+	// return OK
+	api->godot_variant_new_int(&ret, 0);
 	return ret;
 }
 
@@ -268,7 +276,8 @@ void GDN_EXPORT godot_nativescript_init(void *p_handle)
 	nativescript_api->godot_nativescript_register_class(p_handle, SQLITE_CLASSNAME, SQLITE_BASECLASS, create, destroy);
 
 	// Methods
-	register_method(p_handle, "open_database", &sqlite_open);
+	register_method(p_handle, "open_db", &sqlite_open);
 	register_method(p_handle, "query", &sqlite_query);
 	register_method(p_handle, "fetch_array", &sqlite_fetch_array);
+	register_method(p_handle, "close", &sqlite_close);
 }
