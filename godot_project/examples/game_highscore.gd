@@ -1,7 +1,6 @@
 extends Node
 
 # Variables
-var loaded = false;
 var highscore = 0;
 var row_id = 0;
 
@@ -9,8 +8,6 @@ func _ready():
 	# Open database
 	if (!SQLite.open_db("player_stats.sql")):
 		return;
-	else:
-		loaded = true;
 	
 	# Create table
 	var query = "CREATE TABLE IF NOT EXISTS highscore (id INTEGER PRIMARY KEY, score INTEGER NOT NULL);";
