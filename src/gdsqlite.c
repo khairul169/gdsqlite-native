@@ -92,9 +92,8 @@ godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data,
 	godot_variant ret;
 
 	// Database is not null or no argument supplied.
-	if (db != NULL || num_args < 1)
-	{
-		api->godot_variant_new_int(&ret, -1);
+	if (db != NULL || num_args < 1) {
+		api->godot_variant_new_bool(&ret, false);
 		return ret;
 	}
 
@@ -113,8 +112,7 @@ godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data,
 
 	// Open database
 	int err = sqlite3_open(filepath, &db);
-
-	api->godot_variant_new_int(&ret, err);
+	api->godot_variant_new_bool(&ret, (err != SQLITE_OK) ? false : true);
 	return ret;
 }
 
@@ -131,7 +129,7 @@ godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data
 	// No args
 	if (num_args < 1)
 	{
-		api->godot_variant_new_int(&ret, -1);
+		api->godot_variant_new_bool(&ret, false);
 		return ret;
 	}
 
@@ -142,7 +140,7 @@ godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data
 	// Failed to prepare the query
 	if (retv != SQLITE_OK)
 	{
-		api->godot_variant_new_int(&ret, -1);
+		api->godot_variant_new_bool(&ret, false);
 		return ret;
 	}
 
@@ -150,7 +148,7 @@ godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data
 	retv = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 
-	api->godot_variant_new_int(&ret, retv);
+	api->godot_variant_new_bool(&ret, true);
 	return ret;
 }
 
@@ -242,12 +240,41 @@ godot_variant sqlite_close(godot_object *obj, void *method_data, void *user_data
 
 	// No database loaded
 	if (!db || sqlite3_close_v2(db) != SQLITE_OK) {
-		api->godot_variant_new_int(&ret, -1);
+		api->godot_variant_new_bool(&ret, false);
 		return ret;
 	}
 
 	// return OK
-	api->godot_variant_new_int(&ret, 0);
+	api->godot_variant_new_bool(&ret, true);
+	return ret;
+}
+
+// Check if database are loaded
+godot_variant sqlite_loaded(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args) {
+	godot_variant ret;
+
+	// Database is not null
+	if (db != NULL) {
+		api->godot_variant_new_bool(&ret, true);
+		return ret;
+	}
+
+	// return false
+	api->godot_variant_new_bool(&ret, false);
+	return ret;
+}
+
+godot_variant sqlite_last_insert_rowid(godot_object *obj, void *method_data, void *user_data, int num_args, godot_variant **args) {
+	godot_variant ret;
+	if (!db) {
+		api->godot_variant_new_int(&ret, 0);
+		return ret;
+	}
+
+	int rowid = (int)sqlite3_last_insert_rowid(db);
+
+	// return false
+	api->godot_variant_new_int(&ret, rowid);
 	return ret;
 }
 
@@ -280,4 +307,6 @@ void GDN_EXPORT godot_nativescript_init(void *p_handle)
 	register_method(p_handle, "query", &sqlite_query);
 	register_method(p_handle, "fetch_array", &sqlite_fetch_array);
 	register_method(p_handle, "close", &sqlite_close);
+	register_method(p_handle, "loaded", &sqlite_loaded);
+	register_method(p_handle, "last_insert_rowid", &sqlite_last_insert_rowid);
 }
