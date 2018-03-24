@@ -6,6 +6,8 @@ A [SQLite](https://www.sqlite.org/) wrapper for Godot Engine 3.0
 
 Download latest [release](https://github.com/khairul169/gdsqlite-native/releases) of this module and uncompress it on your project directory.
 
+Edit Project Settings and add `res://lib/SQLite.tscn` to AutoLoad.
+
 ## Example usage
 
 - [SQL Queries](https://github.com/khairul169/gdsqlite-native/blob/master/godot_project/examples/sql_queries.gd)
