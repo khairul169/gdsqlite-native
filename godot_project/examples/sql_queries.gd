@@ -2,7 +2,7 @@ extends Node
 
 func _ready():
 	# Open database
-	if (!SQLite.open_db("godot.sql")):
+	if (!SQLite.open_db("res://godot.sql")):
 		print("Cannot open database.");
 		return;
 	
