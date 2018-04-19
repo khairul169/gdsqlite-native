@@ -6,17 +6,17 @@ var row_id = 0;
 
 func _ready():
 	# Open database
-	if (!SQLite.open_db("player_stats.sql")):
+	if (not SQLite.open_db("user://player_stats.sql")):
 		return;
 	
 	# Create table
 	var query = "CREATE TABLE IF NOT EXISTS highscore (id INTEGER PRIMARY KEY, score INTEGER NOT NULL);";
-	if (!SQLite.query(query)):
+	if (not SQLite.query(query)):
 		return;
 	
 	# Retrieve current highscore
 	var rows = SQLite.fetch_array("SELECT id, score FROM highscore LIMIT 1;");
-	if (rows && rows.size() > 0):
+	if (rows and not rows.empty()):
 		row_id = rows[0]['id'];
 		highscore = rows[0]['score'];
 	
@@ -32,7 +32,7 @@ func _exit_tree():
 	SQLite.close();
 
 func set_highscore(score):
-	if (!SQLite.loaded()):
+	if (not SQLite.loaded()):
 		return;
 	
 	# Update highscore
@@ -48,7 +48,7 @@ func set_highscore(score):
 func get_highscore():
 	# Retrieve highscore from database
 	var rows = SQLite.fetch_array("SELECT score FROM highscore WHERE id='" + str(row_id) + "' LIMIT 1;");
-	if (rows && rows.size() > 0):
+	if (rows and not rows.empty()):
 		highscore = rows[0]['score'];
 	
 	# Return the highscore

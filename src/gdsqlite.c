@@ -13,8 +13,7 @@ const godot_gdnative_core_api_struct *api = NULL;
 const godot_gdnative_ext_nativescript_api_struct *nativescript_api = NULL;
 
 // Singletons
-godot_object *godot_os = NULL;
-godot_method_bind *godot_os_getdatadir = NULL;
+godot_object *godot_globals = NULL;
 
 /** Library entry point **/
 void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o)
@@ -65,25 +64,30 @@ char *alloc_c_string(godot_string *string) {
 	return result;
 }
 
-// Get user data directory
-const char *get_data_dir() {
-	// Load OS singleton
-	if (godot_os == NULL)
-		godot_os = api->godot_global_get_singleton((char *) "OS");
-	if (godot_os_getdatadir == NULL)
-		godot_os_getdatadir = api->godot_method_bind_get_method("_OS", "get_user_data_dir");
+// ProjectSettings.globalize_path(path)
+const char *globalize_path(godot_string path) {
+	if (godot_globals == NULL)
+		godot_globals = api->godot_global_get_singleton((char *) "ProjectSettings");
+
+	static godot_method_bind *mb = NULL;
+	if (mb == NULL)
+		mb = api->godot_method_bind_get_method("ProjectSettings", "globalize_path");
 
 	// vars
-	godot_string usr_dir;
-	api->godot_string_new(&usr_dir);
-	const void *args[1];
+	godot_string global_path;
+	api->godot_string_new(&global_path);
+
+	// arguments
+	const void *args[] = {
+		(void *) &path
+	};
 
 	// call method
-	api->godot_method_bind_ptrcall(godot_os_getdatadir, godot_os, args, &usr_dir);
+	api->godot_method_bind_ptrcall(mb, godot_globals, args, &global_path);
 
 	// return user dir
 	char *ret;
-	ret = alloc_c_string(&usr_dir);
+	ret = alloc_c_string(&global_path);
 	return ret;
 }
 
@@ -101,17 +105,10 @@ godot_variant sqlite_open(godot_object *obj, void *method_data, void *user_data,
 	godot_string fname = api->godot_variant_as_string(args[0]);
 
 	// Database file path
-	char *filename, filepath[256];
-	filename = alloc_c_string(&fname);
-
-	strcpy(filepath, get_data_dir());
-	strcat(filepath, "/");
-	strcat(filepath, filename);
-	
-	printf("[SQLite] Database path: user://%s\n", filename);
+	const char *path = globalize_path(fname);
 
 	// Open database
-	int err = sqlite3_open(filepath, &db);
+	int err = sqlite3_open(path, &db);
 	api->godot_variant_new_bool(&ret, (err != SQLITE_OK) ? false : true);
 	return ret;
 }
@@ -127,8 +124,7 @@ godot_variant sqlite_query(godot_object *obj, void *method_data, void *user_data
 	godot_variant ret;
 
 	// No args
-	if (num_args < 1)
-	{
+	if (num_args < 1) {
 		api->godot_variant_new_bool(&ret, false);
 		return ret;
 	}
