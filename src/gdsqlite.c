@@ -240,6 +240,8 @@ godot_variant sqlite_close(godot_object *obj, void *method_data, void *user_data
 		return ret;
 	}
 
+	db = NULL;
+
 	// return OK
 	api->godot_variant_new_bool(&ret, true);
 	return ret;
