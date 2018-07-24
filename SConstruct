@@ -1,9 +1,7 @@
 #!python
 import os
 
-# GDNative headers path
-godot_headers = "../godot_headers"
-
+# Environment
 env = Environment(ENV = os.environ);
 
 # Platform & bits
@@ -11,7 +9,7 @@ platform = ARGUMENTS.get("p", "windows");
 bits = ARGUMENTS.get("bits", "64");
 
 # Include dir
-env.Append(CPPPATH=[godot_headers, 'src']);
+env.Append(CPPPATH=['godot_headers', 'src']);
 
 if platform == 'linux':
 	if ARGUMENTS.get('use_llvm', 'no') == 'yes':
