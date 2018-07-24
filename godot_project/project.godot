@@ -14,10 +14,6 @@ config/name="SQLiteTest"
 run/main_scene="res://scene.tscn"
 config/icon="res://icon.png"
 
-[autoload]
-
-SQLite="*res://lib/SQLite.tscn"
-
 [gdnative]
 
 singletons=[  ]

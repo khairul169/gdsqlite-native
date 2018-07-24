@@ -1,8 +1,14 @@
 extends Node
 
+# SQLite module
+const SQLite = preload("res://lib/gdsqlite.gdns");
+
 func _ready():
+	# Create gdsqlite instance
+	var db = SQLite.new();
+	
 	# Open database
-	if (!SQLite.open_db("res://godot.sql")):
+	if (!db.open_db("res://godot.sql")):
 		print("Cannot open database.");
 		return;
 	
@@ -16,16 +22,16 @@ func _ready():
 	query += "last_name text NOT NULL,";
 	query += "email text NOT NULL";
 	query += ");";
-	result = SQLite.query(query);
+	result = db.query(query);
 	
 	# Fetch rows
 	query = "SELECT * FROM users;";
-	result = SQLite.fetch_array(query);
+	result = db.fetch_array(query);
 	
 	if (!result || result.size() <= 0):
 		# Insert new row
 		query = "INSERT INTO users (first_name, last_name, email) VALUES ('godot', 'engine', 'user@users.org');";
-		result = SQLite.query(query);
+		result = db.query(query);
 		
 		if (!result):
 			print("Cannot insert data!");
@@ -38,4 +44,4 @@ func _ready():
 			print(i);
 	
 	# Close database
-	SQLite.close();
+	db.close();

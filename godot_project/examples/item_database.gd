@@ -1,14 +1,20 @@
 extends Node
 
-# variables
+# SQLite module
+const SQLite = preload("res://lib/gdsqlite.gdns");
+
+# Variables
 var item_list = [];
 
 func _ready():
+	# Create gdsqlite instance
+	var db = SQLite.new();
+	
 	# Open item database
-	SQLite.open_db("res://items.db");
+	db.open_db("res://items.db");
 	
 	# Get item list from db
-	var pots = SQLite.fetch_array("SELECT * FROM potion ORDER BY id ASC");
+	var pots = db.fetch_array("SELECT * FROM potion ORDER BY id ASC");
 	if (not pots or pots.empty()):
 		return;
 	
