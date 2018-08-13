@@ -298,7 +298,7 @@ void GDN_EXPORT godot_nativescript_init(void *p_handle)
 	destroy.destroy_func = &gdsqlite_free;
 
 	// Register class
-	nativescript_api->godot_nativescript_register_class(p_handle, SQLITE_CLASSNAME, SQLITE_BASECLASS, create, destroy);
+	nativescript_api->godot_nativescript_register_tool_class(p_handle, SQLITE_CLASSNAME, SQLITE_BASECLASS, create, destroy);
 
 	// Methods
 	register_method(p_handle, "open_db", &sqlite_open);
