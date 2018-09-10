@@ -1,0 +1,10 @@
+[gd_resource type="NativeScript" load_steps=2 format=2]
+
+[ext_resource path="res://lib/gdsqlite/library.tres" type="GDNativeLibrary" id=1]
+
+[resource]
+
+resource_name = "SQLite"
+class_name = "SQLite"
+library = ExtResource( 1 )
+

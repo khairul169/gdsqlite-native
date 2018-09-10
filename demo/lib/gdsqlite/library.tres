@@ -1,0 +1,12 @@
+[gd_resource type="GDNativeLibrary" format=2]
+
+[resource]
+
+config_file = Object(ConfigFile,"script":null)
+
+load_once = true
+symbol_prefix = "godot_"
+reloadable = true
+entry/Windows.64 = "res://lib/gdsqlite/gdsqlite.64.dll"
+dependency/Windows.64 = [  ]
+
