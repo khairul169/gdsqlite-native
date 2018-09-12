@@ -8,5 +8,7 @@ load_once = true
 symbol_prefix = "godot_"
 reloadable = true
 entry/Windows.64 = "res://lib/gdsqlite/gdsqlite.64.dll"
+entry/Windows.32 = "res://lib/gdsqlite/gdsqlite.32.dll"
 dependency/Windows.64 = [  ]
+dependency/Windows.32 = [  ]
 

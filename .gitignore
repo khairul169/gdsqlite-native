@@ -2,7 +2,7 @@
 ###################
 *.com
 *.class
-*.dll
+#*.dll
 *.exe
 *.o
 *.os
@@ -43,9 +43,10 @@ Thumbs.db
 # Etc
 .import/
 .sconsign.dblite
-godot_project/.import/
-godot_project/lib/gdsqlite/*.lib
-lib/gdsqlite*.lib
+bin/
+demo/.import/
+demo/lib/gdsqlite/*.lib
+lib/*.lib
 
 # VS
 vsproj/.vs/

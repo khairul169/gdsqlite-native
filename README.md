@@ -1,6 +1,6 @@
 # GDSQLite
 
-A [SQLite](https://www.sqlite.org/) wrapper for Godot Engine 3.0
+[SQLite3](https://www.sqlite.org/) wrapper for Godot Engine 3.x
 
 ## Installation
 
