@@ -46,4 +46,11 @@ Thumbs.db
 godot_project/.import/
 godot_project/lib/gdsqlite/*.lib
 lib/gdsqlite*.lib
-vsproj/
+
+# VS
+vsproj/.vs/
+vsproj/Debug/
+vsproj/Release/
+vsproj/x64/
+vsproj/x86/
+vsproj/gdsqlite.vcxproj.*
