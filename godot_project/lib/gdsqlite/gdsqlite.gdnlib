@@ -7,6 +7,7 @@ reloadable=false
 
 [entry]
 
+OSX.64="res://lib/gdsqlite/libgdsqlite.64.dylib"
 Windows.64="res://lib/gdsqlite/gdsqlite.64.dll"
 Windows.32="res://lib/gdsqlite/gdsqlite.32.dll"
 X11.64="res://lib/gdsqlite/libgdsqlite.64.so"
@@ -15,6 +16,7 @@ Server="res://lib/gdsqlite/libgdsqlite.64.so"
 
 [dependencies]
 
+OSX.64=[  ]
 Windows.64=[  ]
 Windows.32=[  ]
 X11.64=[  ]
