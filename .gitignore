@@ -46,6 +46,6 @@ Thumbs.db
 godot_project/.import/
 godot_project/lib/gdsqlite/*.lib
 godot_project/lib/gdsqlite/*.dylib
-lib/gdsqlite*.li
+lib/gdsqlite*.lib
 lib/*.dylib
 vsproj/
