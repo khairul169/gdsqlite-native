@@ -30,6 +30,10 @@ if platform == 'windows':
 		env['PDB']='${TARGET.base}.pdb'
 		env.Append(CCFLAGS = ['-EHsc', '/DEBUG', '-D_DEBUG', '/MDd'])
 
+if platform == 'osx':
+	env.Append(CCFLAGS = ['-g','-O3', '-arch', 'x86_64'])
+	env.Append(LINKFLAGS = ['-arch', 'x86_64'])
+
 # Source lists
 sources = [
 	"src/gdsqlite.c",
