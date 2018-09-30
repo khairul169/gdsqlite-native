@@ -88,6 +88,24 @@ void SQLite::close() {
 	}
 }
 
+bool SQLite::backup(SQLite* other) {
+	// Initialize backup
+	sqlite3_backup *backup_data = sqlite3_backup_init(other->db, "main", db, "main");
+	
+	// Check that initialize succeeded
+	if(!backup_data)
+		return false;
+	
+	// Copy all pages
+	int result = sqlite3_backup_step(backup_data, -1);
+	
+	if(result != SQLITE_DONE)
+		Godot::print("SQLite backup failed!");
+	
+	sqlite3_backup_finish(backup_data);
+	return result == SQLITE_DONE;
+}
+
 sqlite3_stmt* SQLite::prepare(const char* query) {
 	// Get database pointer
 	sqlite3 *dbs = get_handler();
@@ -221,4 +239,5 @@ void SQLite::_register_methods() {
 	register_method("close", &SQLite::close);
 	register_method("fetch_array", &SQLite::fetch_array);
 	register_method("fetch_assoc", &SQLite::fetch_assoc);
+	register_method("backup", &SQLite::backup);
 }
