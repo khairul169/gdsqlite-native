@@ -26,6 +26,8 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#pragma warning(disable: 4996) // Fixes "unsafe" warnings for strdup and strncpy
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -292,7 +294,7 @@ int spmemvfsOpen( sqlite3_vfs * vfs, const char * path, sqlite3_file * file, int
 	memfile->base.pMethods = &g_spmemfile_io_memthods;
 	memfile->flags = flags;
 
-	memfile->path = _strdup( path );
+	memfile->path = strdup( path );
 
 	if( SQLITE_OPEN_MAIN_DB & memfile->flags ) {
 		memfile->mem = memvfs->cb.load( memvfs->cb.arg, path );
@@ -319,7 +321,7 @@ int spmemvfsAccess( sqlite3_vfs * vfs, const char * path, int flags, int * resul
 
 int spmemvfsFullPathname( sqlite3_vfs * vfs, const char * path, int len, char * fullpath )
 {
-	strncpy_s( fullpath, strlen(path) + 1, path, len );
+	strncpy( fullpath, path, len );
 	fullpath[ len - 1 ] = '\0';
 
 	return SQLITE_OK;
@@ -498,7 +500,7 @@ int spmemvfs_open_db( spmemvfs_db_t * db, const char * path, spmembuffer_t * mem
 	memset( db, 0, sizeof( spmemvfs_db_t ) );
 
 	iter = (spmembuffer_link_t*)calloc( sizeof( spmembuffer_link_t ), 1 );
-	iter->path = _strdup( path );
+	iter->path = strdup( path );
 	iter->mem = mem;
 
 	sqlite3_mutex_enter( g_spmemvfs_env->mutex );
