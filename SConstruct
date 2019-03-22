@@ -46,6 +46,17 @@ if platform == 'windows':
 	else:
 		env.Append(CCFLAGS = ['-D_WIN32', '/EHsc', '/O2', '/MD' ])
 
+# If platform is OSX
+if platform == 'osx':
+	# If using Clang
+	if ARGUMENTS.get('use_llvm', 'no') == 'yes':
+		env['CXX'] = 'clang++'
+	# Set compiler variables
+	env.Append(CCFLAGS = [ '-g','-O3', '-arch', 'x86_64' ])
+	env.Append(CXXFLAGS = [ '-std=c++14' ])
+	env.Append(LINKFLAGS = [ '-arch', 'x86_64', '-framework', 'Cocoa', '-Wl,-undefined,dynamic_lookup' ])
+	env.Append(RPATH=env.Literal("\\$$ORIGIN"))
+
 if bits == '64':
 	output += '.64';
 else:
