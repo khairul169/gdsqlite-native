@@ -13,7 +13,7 @@ func _ready():
 	db = SQLite.new();
 	
 	# Open the database
-	if (not db.open_db("user://player_stats.sql")):
+	if (not db.open("user://player_stats.sql")):
 		return;
 	
 	# Create table
@@ -35,12 +35,12 @@ func _ready():
 	print("High score: ", get_highscore());
 
 func _exit_tree():
-	if (db and db.loaded()):
+	if (db):
 		# Close database
 		db.close();
 
 func set_highscore(score):
-	if (not db or not db.loaded()):
+	if (not db):
 		return;
 	
 	# Update highscore
@@ -48,17 +48,19 @@ func set_highscore(score):
 	
 	# Execute sql syntax
 	if (row_id > 0):
-		db.query(str("UPDATE highscore SET score='", highscore, "' WHERE id='", row_id, "';"));
+		var args = [highscore, row_id]
+		db.query_with_args("UPDATE highscore SET score=? WHERE id=?;", args);
 	else:
-		db.query(str("INSERT INTO highscore (score) VALUES ('", highscore, "');"));
-		row_id = db.last_insert_rowid();
+		var args = [row_id];
+		db.query_with_args("INSERT INTO highscore (score) VALUES (?);", args);
+		row_id = db.fetch_array("SELECT last_insert_rowid()", [])[0]['last_insert_rowid()'];
 
 func get_highscore():
-	if (not db or not db.loaded()):
+	if (not db):
 		return;
 	
 	# Retrieve highscore from database
-	var rows = db.fetch_array("SELECT score FROM highscore WHERE id='" + str(row_id) + "' LIMIT 1;");
+	var rows = db.fetch_array_with_args("SELECT score FROM highscore WHERE id=? LIMIT 1;", [row_id]);
 	if (rows and not rows.empty()):
 		highscore = rows[0]['score'];
 	

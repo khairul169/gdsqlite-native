@@ -110,13 +110,23 @@ sqlite3_stmt* SQLite::prepare(const char* query) {
 	return stmt;
 }
 
-bool SQLite::query(String query) {
+bool SQLite::query_with_args(String query, PoolStringArray args) {
 	sqlite3_stmt *stmt = prepare(query.utf8().get_data());
 
 	// Failed to prepare the query
 	if (!stmt) {
 		return false;
 	}
+
+	int param_count = sqlite3_bind_parameter_count(stmt);
+	if(param_count != args.size())
+	{
+		Godot::print(String("Query failed, expected ? args, got ?").format(Array::make(param_count, args.size()), "?"));
+		return false;
+	}
+
+	for(int i = 0; i < param_count; i++)
+		sqlite3_bind_text(stmt, i+1, args[i].utf8().get_data(), -1, SQLITE_TRANSIENT);
 
 	// Evaluate the sql query
 	sqlite3_step(stmt);
@@ -125,7 +135,12 @@ bool SQLite::query(String query) {
 	return true;
 }
 
-Array SQLite::fetch_rows(String statement, int result_type) {
+bool SQLite::query(String query)
+{
+	return this->query_with_args(query, PoolStringArray());
+}
+
+Array SQLite::fetch_rows(String statement, PoolStringArray args, int result_type) {
 	Array result;
 
 	// Empty statement
@@ -138,6 +153,18 @@ Array SQLite::fetch_rows(String statement, int result_type) {
 	if (!stmt) {
 		return result;
 	}
+
+	// Check parameter count
+	int param_count = sqlite3_bind_parameter_count(stmt);
+	if(param_count != args.size())
+	{
+		Godot::print(String("Fetch failed, expected ? args, got ?").format(Array::make(param_count, args.size()), "?"));
+		return result;
+	}
+
+	// Bind parameters
+	for(int i = 0; i < param_count; i++)
+		sqlite3_bind_text(stmt, i+1, args[i].utf8().get_data(), -1, SQLITE_TRANSIENT);
 
 	// Fetch rows
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -201,11 +228,19 @@ Dictionary SQLite::parse_row(sqlite3_stmt *stmt, int result_type) {
 }
 
 Array SQLite::fetch_array(String query) {
-	return fetch_rows(query, RESULT_BOTH);
+	return fetch_rows(query, PoolStringArray(), RESULT_BOTH);
+}
+
+Array SQLite::fetch_array_with_args(String query, PoolStringArray args) {
+	return fetch_rows(query, args, RESULT_BOTH);
 }
 
 Array SQLite::fetch_assoc(String query) {
-	return fetch_rows(query, RESULT_ASSOC);
+	return fetch_rows(query, PoolStringArray(), RESULT_ASSOC);
+}
+
+Array SQLite::fetch_assoc_with_args(String query, PoolStringArray args) {
+	return fetch_rows(query, args, RESULT_ASSOC);
 }
 
 SQLite::~SQLite() {
@@ -218,7 +253,10 @@ void SQLite::_register_methods() {
 	register_method("open", &SQLite::open);
 	register_method("open_buffered", &SQLite::open_buffered);
 	register_method("query", &SQLite::query);
+	register_method("query_with_args", &SQLite::query_with_args);
 	register_method("close", &SQLite::close);
 	register_method("fetch_array", &SQLite::fetch_array);
+	register_method("fetch_array_with_args", &SQLite::fetch_array_with_args);
 	register_method("fetch_assoc", &SQLite::fetch_assoc);
+	register_method("fetch_assoc_with_args", &SQLite::fetch_assoc_with_args);
 }
