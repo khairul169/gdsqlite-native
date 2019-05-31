@@ -7,6 +7,7 @@ const SQLite = preload("res://lib/gdsqlite.gdns");
 var db;
 var highscore = 0;
 var row_id = 0;
+onready var open = false;
 
 func _ready():
 	# Create gdsqlite instance
@@ -15,6 +16,8 @@ func _ready():
 	# Open the database
 	if (not db.open("user://player_stats.sql")):
 		return;
+	
+	open = true;
 	
 	# Create table
 	var query = "CREATE TABLE IF NOT EXISTS highscore (id INTEGER PRIMARY KEY, score INTEGER NOT NULL);";
@@ -40,7 +43,7 @@ func _exit_tree():
 		db.close();
 
 func set_highscore(score):
-	if (not db):
+	if not open:
 		return;
 	
 	# Update highscore
@@ -48,15 +51,13 @@ func set_highscore(score):
 	
 	# Execute sql syntax
 	if (row_id > 0):
-		var args = [highscore, row_id]
-		db.query_with_args("UPDATE highscore SET score=? WHERE id=?;", args);
+		db.query_with_args("UPDATE highscore SET score=? WHERE id=?;", [highscore, row_id]);
 	else:
-		var args = [row_id];
-		db.query_with_args("INSERT INTO highscore (score) VALUES (?);", args);
+		db.query_with_args("INSERT INTO highscore (score) VALUES (?);", [row_id]);
 		row_id = db.fetch_array("SELECT last_insert_rowid()", [])[0]['last_insert_rowid()'];
 
 func get_highscore():
-	if (not db):
+	if not open:
 		return;
 	
 	# Retrieve highscore from database
