@@ -9,7 +9,7 @@ platform = ARGUMENTS.get('p', ARGUMENTS.get('platform', 'windows'));
 bits = ARGUMENTS.get('b', ARGUMENTS.get('bits', '64'));
 target = ARGUMENTS.get('t', ARGUMENTS.get('target', 'release'));
 output = 'gdsqlite';
-godotcpp_lib = 'godot_cpp';
+godotcpp_lib = 'libgodot-cpp';
 
 if platform == 'linux':
 	if ARGUMENTS.get('use_llvm', 'no') == 'yes':
@@ -25,19 +25,15 @@ if platform == 'linux':
 	if bits == '64':
 		env.Append(CCFLAGS = [ '-m64' ]);
 		env.Append(LINKFLAGS = [ '-m64' ]);
-		godotcpp_lib += '.linux.64';
 	else:
 		env.Append(CCFLAGS = [ '-m32' ]);
 		env.Append(LINKFLAGS = [ '-m32' ]);
-		godotcpp_lib += '.linux.32';
 
 if platform == 'windows':
 	if bits == '64':
 		env = Environment(ENV = os.environ, TARGET_ARCH='amd64');
-		godotcpp_lib += '.windows.64';
 	else:
 		env = Environment(ENV = os.environ, TARGET_ARCH='x86');
-		godotcpp_lib += '.windows.32';
 	
 	if target == 'debug':
 		env['CCPDBFLAGS'] = '/Zi /Fd${TARGET}.pdb'
@@ -45,6 +41,8 @@ if platform == 'windows':
 		env.Append(CCFLAGS = ['-D_WIN32', '-EHsc', '/DEBUG', '-D_DEBUG', '/MDd'])
 	else:
 		env.Append(CCFLAGS = ['-D_WIN32', '/EHsc', '/O2', '/MD' ])
+
+godotcpp_lib += '.' + platform + '.' + target + '.' + bits
 
 # If platform is OSX
 if platform == 'osx':
