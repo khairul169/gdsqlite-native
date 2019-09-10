@@ -1,13 +1,19 @@
 [gd_resource type="GDNativeLibrary" format=2]
 
 [resource]
-config_file = Object(ConfigFile,"script":null)
-
+entry/Android.armeabi-v7a = "res://lib/gdsqlite/libgdsqlite.armv7.so"
+entry/Android.arm64-v8a = "res://lib/gdsqlite/libgdsqlite.arm64v8.so"
+entry/Android.x86 = "res://lib/gdsqlite/libgdsqlite.x86.so"
+entry/Android.x86_64 = "res://lib/gdsqlite/libgdsqlite.x86_64.so"
 entry/OSX.64 = "res://lib/gdsqlite/libgdsqlite.64.dylib"
 entry/Windows.64 = "res://lib/gdsqlite/gdsqlite.64.dll"
 entry/Windows.32 = "res://lib/gdsqlite/gdsqlite.32.dll"
 entry/X11.64 = "res://lib/gdsqlite/libgdsqlite.64.so"
 entry/X11.32 = "res://lib/gdsqlite/libgdsqlite.32.so"
+dependency/Android.armeabi-v7a = [  ]
+dependency/Android.arm64-v8a = [  ]
+dependency/Android.x86 = [  ]
+dependency/Android.x86_64 = [  ]
 dependency/OSX.64 = [  ]
 dependency/Windows.64 = [  ]
 dependency/Windows.32 = [  ]
