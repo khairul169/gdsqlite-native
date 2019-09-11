@@ -1,6 +1,7 @@
 #include "gdsqlite.hpp"
 #include <ProjectSettings.hpp>
 #include <File.hpp>
+#include <Engine.hpp>
 
 using namespace godot;
 
@@ -14,6 +15,21 @@ bool SQLite::open(String path) {
 	if (!path.strip_edges().length())
 		return false;
 	
+	// If this is running outside of the editor, databases under res:// are assumed to be packed
+	if(!Engine::get_singleton()->is_editor_hint() && path.begins_with_char_array("res://"))
+	{
+		Ref<File> dbfile;
+		dbfile.instance();
+		if(dbfile->open(path, File::READ) != Error::OK)
+		{
+			Godot::print("Cannot open packed database!");
+			return false;
+		}
+		int64_t size = dbfile->get_len();
+		PoolByteArray buffer = dbfile->get_buffer(size);
+		return open_buffered(path, buffer, size);
+	}
+
 	// Convert to global path
 	String real_path = ProjectSettings::get_singleton()->globalize_path(path.strip_edges());
 
