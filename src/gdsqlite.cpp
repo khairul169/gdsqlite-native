@@ -13,7 +13,7 @@ bool SQLite::open(String path) {
 	// Empty path
 	if (!path.strip_edges().length())
 		return false;
-	
+
 	// Convert to global path
 	String real_path = ProjectSettings::get_singleton()->globalize_path(path.strip_edges());
 
@@ -21,7 +21,6 @@ bool SQLite::open(String path) {
 	int result = sqlite3_open(real_path.utf8().get_data(), &db);
 
 	if (result != SQLITE_OK) {
-		Godot::print("Cannot open database!");
 		return false;
 	}
 
