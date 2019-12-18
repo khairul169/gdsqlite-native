@@ -140,6 +140,25 @@ bool SQLite::query(String query)
 	return this->query_with_args(query, PoolStringArray());
 }
 
+bool SQLite::query_all(String query_list)
+{
+	sqlite3 *dbs = get_handler();
+
+	if (!dbs) {
+		Godot::print("Cannot prepare queries! Database is not opened.");
+		return false;
+	}
+
+	int result = sqlite3_exec(dbs, query_list.utf8().get_data(), nullptr, nullptr, nullptr);
+
+	if (result != SQLITE_OK) {
+		Godot::print("SQL Error: " + String(sqlite3_errmsg(dbs)));
+		return false;
+	}
+
+	return true;
+}
+
 Array SQLite::fetch_rows(String statement, PoolStringArray args, int result_type) {
 	Array result;
 
@@ -253,6 +272,7 @@ void SQLite::_register_methods() {
 	register_method("open", &SQLite::open);
 	register_method("open_buffered", &SQLite::open_buffered);
 	register_method("query", &SQLite::query);
+	register_method("query_all", &SQLite::query_all);
 	register_method("query_with_args", &SQLite::query_with_args);
 	register_method("close", &SQLite::close);
 	register_method("fetch_array", &SQLite::fetch_array);

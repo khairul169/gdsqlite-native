@@ -47,6 +47,7 @@ namespace godot {
 
 		bool query(String statement);
 		bool query_with_args(String statement, PoolStringArray args);
+		bool query_all(String statement_list);
 		Array fetch_array(String statement);
 		Array fetch_array_with_args(String statement, PoolStringArray args);
 		Array fetch_assoc(String statement);
