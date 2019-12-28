@@ -110,14 +110,8 @@ sqlite3_stmt* SQLite::prepare(const char* query) {
 	return stmt;
 }
 
-bool SQLite::query_with_args(String query, PoolStringArray args) {
-	sqlite3_stmt *stmt = prepare(query.utf8().get_data());
-
-	// Failed to prepare the query
-	if (!stmt) {
-		return false;
-	}
-
+bool SQLite::bind_args(sqlite3_stmt *stmt, Array args)
+{
 	int param_count = sqlite3_bind_parameter_count(stmt);
 	if(param_count != args.size())
 	{
@@ -125,8 +119,64 @@ bool SQLite::query_with_args(String query, PoolStringArray args) {
 		return false;
 	}
 
+	/**
+	 * SQLite data types:
+	 * - NULL
+	 * - INTEGER (signed, max 8 bytes)
+	 * - REAL (stored as a double-precision float)
+	 * - TEXT (stored in database encoding of UTF-8, UTF-16BE or UTF-16LE)
+	 * - BLOB (1:1 storage)
+	 */
+
 	for(int i = 0; i < param_count; i++)
-		sqlite3_bind_text(stmt, i+1, args[i].utf8().get_data(), -1, SQLITE_TRANSIENT);
+	{
+		int retcode;
+		switch(args[i].get_type())
+		{
+			case godot::Variant::Type::NIL:
+				retcode = sqlite3_bind_null(stmt, i+1);
+				break;
+			case godot::Variant::Type::BOOL:
+			case godot::Variant::Type::INT:
+				retcode = sqlite3_bind_int(stmt, i+1, (int)args[i]);
+				break;
+			case godot::Variant::Type::REAL:
+				retcode = sqlite3_bind_double(stmt, i+1, (double)args[i]);
+				break;
+			case godot::Variant::Type::STRING:
+				retcode = sqlite3_bind_text(stmt, i+1, ((godot::String)args[i]).utf8().get_data(), -1, SQLITE_TRANSIENT);
+				break;
+			case godot::Variant::Type::POOL_BYTE_ARRAY:
+				retcode = sqlite3_bind_blob(stmt, i+1, ((PoolByteArray)args[i]).read().ptr(), ((PoolByteArray)args[i]).size(), SQLITE_TRANSIENT);
+				break;
+			default:
+				Godot::print(String("SQLite was passed unhandled Variant with TYPE_* enum ?. Please serialize your object into a String or a PoolByteArray.").format(Array::make(args[i].get_type()), "?"), __FUNCTIONW__, __FILE__, __LINE__);
+				return false;
+		}
+
+		if(retcode != SQLITE_OK)
+		{
+			Godot::print(String("Query failed, an error occured while binding argument ? of ? (SQLite errcode ?)").format(Array::make(i+1, args.size(), retcode), "?"));
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool SQLite::query_with_args(String query, Array args) {
+	sqlite3_stmt *stmt = prepare(query.utf8().get_data());
+
+	// Failed to prepare the query
+	if (!stmt) {
+		return false;
+	}
+
+	if(!bind_args(stmt, args))
+	{
+		sqlite3_finalize(stmt);
+		return false;
+	}
 
 	// Evaluate the sql query
 	sqlite3_step(stmt);
@@ -140,7 +190,7 @@ bool SQLite::query(String query)
 	return this->query_with_args(query, PoolStringArray());
 }
 
-Array SQLite::fetch_rows(String statement, PoolStringArray args, int result_type) {
+Array SQLite::fetch_rows(String statement, Array args, int result_type) {
 	Array result;
 
 	// Empty statement
@@ -154,17 +204,11 @@ Array SQLite::fetch_rows(String statement, PoolStringArray args, int result_type
 		return result;
 	}
 
-	// Check parameter count
-	int param_count = sqlite3_bind_parameter_count(stmt);
-	if(param_count != args.size())
+	if(!bind_args(stmt, args))
 	{
-		Godot::print(String("Fetch failed, expected ? args, got ?").format(Array::make(param_count, args.size()), "?"));
+		sqlite3_finalize(stmt);
 		return result;
 	}
-
-	// Bind parameters
-	for(int i = 0; i < param_count; i++)
-		sqlite3_bind_text(stmt, i+1, args[i].utf8().get_data(), -1, SQLITE_TRANSIENT);
 
 	// Fetch rows
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -209,6 +253,16 @@ Dictionary SQLite::parse_row(sqlite3_stmt *stmt, int result_type) {
 				value = Variant((char *) sqlite3_column_text(stmt, i));
 				break;
 
+			case SQLITE_BLOB:
+				{
+				PoolByteArray arr;
+				int size = sqlite3_column_bytes(stmt, i);
+				arr.resize(size);
+				memcpy(arr.write().ptr(), sqlite3_column_blob(stmt, i), size);
+				value = Variant(arr);
+				break;
+				}
+
 			default:
 				break;
 		}
@@ -231,7 +285,7 @@ Array SQLite::fetch_array(String query) {
 	return fetch_rows(query, PoolStringArray(), RESULT_BOTH);
 }
 
-Array SQLite::fetch_array_with_args(String query, PoolStringArray args) {
+Array SQLite::fetch_array_with_args(String query, Array args) {
 	return fetch_rows(query, args, RESULT_BOTH);
 }
 
@@ -239,7 +293,7 @@ Array SQLite::fetch_assoc(String query) {
 	return fetch_rows(query, PoolStringArray(), RESULT_ASSOC);
 }
 
-Array SQLite::fetch_assoc_with_args(String query, PoolStringArray args) {
+Array SQLite::fetch_assoc_with_args(String query, Array args) {
 	return fetch_rows(query, args, RESULT_ASSOC);
 }
 
